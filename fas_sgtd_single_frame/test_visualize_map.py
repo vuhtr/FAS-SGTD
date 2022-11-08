@@ -18,7 +18,8 @@ path_txt = './scores/Protocol_1'
 path_map = './map'
 
 flags=FLAGS.flags
-our_checkpoint_path = os.path.join(flags.path.model, 'model.ckpt-9501')
+# our_checkpoint_path = os.path.join(flags.path.model, 'model.ckpt-9501')
+our_checkpoint_path = os.path.join(flags.path.model, 'model.ckpt-19501')
 isOfficialEval = True
 isOnline = False#True
 if isOnline:

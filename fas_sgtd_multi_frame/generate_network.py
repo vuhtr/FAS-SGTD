@@ -458,7 +458,8 @@ def generate_network(features=[], mode=tf.estimator.ModeKeys.TRAIN):
     exclude = ['OFFNet', 'ConvLSTMNet', 'SoftmaxNet']
     variables_to_restore = slim.get_variables_to_restore(exclude=exclude)
     tf.train.init_from_checkpoint(os.path.join( \
-                        'model_finetune', 'model.ckpt-9501'), 
+                        # 'model_finetune', 'model.ckpt-9501'), 
+                        'model_save', 'model.ckpt-19501'),
                         {v.name.split(':')[0]: v for v in variables_to_restore})
 
     return tf.estimator.EstimatorSpec(mode=mode, loss=total_loss_depth, train_op=train_op)
