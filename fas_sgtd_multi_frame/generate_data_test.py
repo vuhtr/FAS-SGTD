@@ -93,7 +93,10 @@ def generate_existFaceLists_perfile(name_pure,IMAGES):
     '''
     res_list=[]
 
+    # Original repo: 0 real, 1 fake, just keep it the same
     video_label = int(name_pure.split('_')[-1])
+    # Our challenge: 0 fake, 1 real
+
     path_image = IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]     # image folder
     # files = os.listdir(path_image)
 

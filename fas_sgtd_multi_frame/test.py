@@ -118,7 +118,7 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
     def realProb(logits):
         #return np.exp(logits[1])/(np.exp(logits[0])+np.exp(logits[1]))
         x = np.array(logits)
-        y = np.exp(x[1])/np.sum(np.exp(x))      # x[1] ~ real prob
+        y = np.exp(x[0])/np.sum(np.exp(x))      # x[0] = real prob (original repo)
         #y = x[0]
         return y
     def name_encode(name_):
