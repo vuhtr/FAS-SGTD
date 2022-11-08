@@ -53,7 +53,7 @@ def crop_face_from_scene(image,face_name_full, scale):
 
 def exists_face_image(path_image,name_pure,suffix2,rangevar):
     for i in rangevar:
-        face_name_full=os.path.join(path_image,name_pure+'_%03d'%i +'_'+suffix2)
+        face_name_full=os.path.join(path_image,name_pure+'_%d'%i +'_'+suffix2)
         if(not os.path.exists(face_name_full)):
             return False
     return True
@@ -65,6 +65,7 @@ def get_res_list(res_list):
     for i in range(0, len_list, each_len):
         res_list_new.append(res_list[i])
     return res_list_new
+
 def generate_existFaceLists_perfile(name_pure,IMAGES):
     '''
     name_pure: pure name of each video
@@ -96,64 +97,29 @@ def generate_existFaceLists_perfile(name_pure,IMAGES):
     path_image = IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]     # image folder
     files = os.listdir(path_image)
 
-    for file in files:
-        name = file.split('.')[0]
-        frame_id = int(name.split('_')[-2])
-        start_ind = frame_id
-        end_ind = frame_id + 7
-        face_name_full = os.path.join(path_image, file)
+    len_seq=flags.paras.len_seq
+    stride_seq=1#flags.paras.stride_seq * 16
+    num_image= len(IMAGES) + 20
+    
+    # downsample for negative samples
+    if video_label == 0:
+        stride_seq *= 2
+
+    start_ind = 0
+    end_ind = start_ind + (len_seq - 1)*interval_seq
+    while (end_ind<num_image):
+        if(not exists_face_image(path_image, name_pure, suffix2, range(start_ind, end_ind + 1, interval_seq))):
+            start_ind += stride_seq
+            end_ind += stride_seq
+            continue
+        face_name_full=os.path.join(path_image,name_pure+'_%d'%start_ind +'_'+suffix2)
         res_list.append([path_image, start_ind, end_ind, video_label, face_name_full])
 
-    return res_list
+        start_ind+=stride_seq
+        end_ind+=stride_seq
 
-    # len_seq=flags.paras.len_seq
-    # stride_seq=1#flags.paras.stride_seq * 16
-    # num_image= len(IMAGES) + 100
-    # path_image=IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]
-
-    # label_name=name_pure.split('_')[-2]
-    # if(label_name=='hack'): # casia and replayAttack
-    #     label=2
-    #     if (name_pure.split('_')[0]=='CASIA'):
-    #         stride_seq*=5 # down sampling for negative samples 
-    # elif(label_name=='real'):
-    #     label=1
-    # else: # ijcb train and dev
-    #     label=int(name_pure.split('_')[-1])
-
-    #     if(label>=2 and label<=3): # down sampling for negative samples 
-    #         stride_seq *= 1
-    #     if(label>=4 and label<=5): # down sampling for negative samples 
-    #         stride_seq *= 1
-    # if num_classes == 2:
-    #     label=1 if label==1 else 2
-    # #label=1 if label==1 else 0
-    # label = label - 1
-    # # down sampling for negative samples  
-    # start_ind=1
-    # end_ind=start_ind+ (len_seq-1)*interval_seq
-    # while (end_ind<num_image):
-    #     #print('%d-%d'%(start_ind,end_ind))
-    #     feature_dict={}
-    #     if(not exists_face_image(path_image,name_pure,suffix2, range(start_ind, end_ind+1, interval_seq))):
-    #         start_ind+=stride_seq
-    #         end_ind+=stride_seq
-    #         #print('Lack of face image(s)')
-    #         continue
-    #     #feature_dict['label']=tf.train.Feature(int64_list=tf.train.Int64List(value=[label]))
-    #     face_name_full=os.path.join(path_image,name_pure+'_%03d'%start_ind +'_'+suffix2)
-    #     res_list.append([path_image, start_ind, end_ind, label, face_name_full])
-
-    #     start_ind+=stride_seq
-    #     end_ind+=stride_seq
-    # #return res_list
     # return get_res_list(res_list)
-    '''
-    if len(res_list) > 0:
-        return [ res_list[0] ]
-    else:
-        return []
-    '''
+    return res_list
 
 # Must be changed if inputs changed
 def read_data_decode(name_pure, path_image, path_scene, start_ind, end_ind, label, face_name_full):
@@ -165,19 +131,21 @@ def read_data_decode(name_pure, path_image, path_scene, start_ind, end_ind, labe
     image_face_list = []
     vertices_map_list = []
 
-    face_dat_name = os.path.join(path_scene, name_pure+'_%03d'%start_ind +'_'+suffix3)
+    # face_dat_name = os.path.join(path_scene, name_pure+'_%d'%start_ind +'_'+suffix3)
 
     for i in range(start_ind, end_ind+1, interval_seq):
-        scene_name_full = os.path.join(path_scene, name_pure+'_%03d'%i +'_'+suffix1)
-        mesh_name_full = os.path.join(path_image, name_pure+'_%03d'%i +'_'+suffix2)
+        scene_name_full = os.path.join(path_scene, name_pure+'_%d'%i +'_'+suffix1)
+        mesh_name_full = os.path.join(path_image, name_pure+'_%d'%i +'_'+suffix2)
                 
-        image = Image.open(scene_name_full)
-        image_face = crop_face_from_scene(image, face_dat_name, face_scale)
+        # image = Image.open(scene_name_full)
+        image_face = Image.open(scene_name_full)
+        # image_face = crop_face_from_scene(image, face_dat_name, face_scale)
         image_face = image_face.resize([padding_info['images'][0], padding_info['images'][1]])
         image_face = np.array(image_face, np.float32) - 127.5
 
-        depth1d = Image.open(mesh_name_full)
-        depth1d_face = crop_face_from_scene(depth1d, face_dat_name, face_scale)
+        # depth1d = Image.open(mesh_name_full)
+        depth1d_face = Image.open(mesh_name_full)
+        # depth1d_face = crop_face_from_scene(depth1d, face_dat_name, face_scale)
         depth1d_face = depth1d_face.resize([padding_info['maps'][0], padding_info['maps'][1]])
         vertices_map = np.array(depth1d_face, np.float32)
         vertices_map = np.expand_dims(vertices_map, axis = 0)
@@ -188,7 +156,7 @@ def read_data_decode(name_pure, path_image, path_scene, start_ind, end_ind, labe
     image_face_cat = np.concatenate(image_face_list, axis=-1)
     vertices_map_cat = np.concatenate(vertices_map_list, axis=-1)
     mask_cat = np.array(vertices_map_cat > 0.0, np.float32)
-    if not label == 0:
+    if label == 0:  # label == 0 ---> FAKE
         vertices_map_cat = np.zeros(vertices_map_cat.shape, dtype=np.float32)        
 
     #print(label, image_face_cat.shape, vertices_map_cat.shape, mask_cat.shape)
@@ -235,7 +203,7 @@ def input_fn_generator(train_list, shuffle):
     for i in range(len(FILES_LIST)):
         path_image=FILES_LIST[i]
         path_scene = find_path_scene(path_image)
-        print('[DEBUG] path_scene:', path_scene)
+
         name_pure=os.path.split(path_image)[-1]
         #print(i,name_pure)
         IMAGES=glob.glob(os.path.join(path_image,'*'+suffix2))
@@ -244,11 +212,7 @@ def input_fn_generator(train_list, shuffle):
         if shuffle:
             random.shuffle(IMAGES) # random shuffle
 
-        print('[DEBUG] IMAGES:', IMAGES)
-        print('[DEBUG] name_pure:', name_pure)
-
         existFaceLists=generate_existFaceLists_perfile(name_pure,IMAGES)
-        print('[DEBUG] existFaceLists:', existFaceLists)
         for existList in existFaceLists:
             [path_image, start_ind, end_ind, label, face_name_full]=existList
             ALLDATA=[name_pure.encode(), path_image.encode(), path_scene.encode(), \
