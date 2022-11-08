@@ -1,0 +1,7 @@
+easydict
+pillow
+scikit-image
+scipy
+numpy
+opencv-python
+# tensorflow==1.4
