@@ -216,6 +216,7 @@ def input_fn_generator(train_list, shuffle):
             random.shuffle(IMAGES) # random shuffle
 
         existFaceLists=generate_existFaceLists_perfile(name_pure,IMAGES)
+        print('[DEBUG] existFaceLists:', existFaceLists)
         for existList in existFaceLists:
             [path_image, start_ind, end_ind, label, face_name_full]=existList
             ALLDATA=[name_pure.encode(), path_image.encode(), path_scene.encode(), \
