@@ -100,7 +100,8 @@ class IJCB:
             res_list.append(file_name_full)
         print('Dataset Info:')
         print('----------------------------------------')
-        print('IJCB', self.protocol, self.mode)
+        # print('IJCB', self.protocol, self.mode)
+        print('IJCB', self.mode)
         print('File Counts:', len(res_list))
         print('----------------------------------------')
 
