@@ -185,10 +185,15 @@ def input_fn_generator(train_list, shuffle):
         path_train_file=train_list[fInd]
         FILES=glob.glob(os.path.join(path_train_file[1],'*'))
         FILES_LIST=FILES_LIST+FILES
+
+    print('[DEBUG]', FILES_LIST)
     
     ## select protocol of IJCB
     FILES_LIST = IJCB(flags.dataset.protocal, 'test').dataset_process(FILES_LIST)\
                 + IJCB(flags.dataset.protocal, 'dev').dataset_process(FILES_LIST)
+
+    print('[DEBUG]', FILES_LIST)
+
     if shuffle:
         random.shuffle(FILES_LIST) # random shuffle
 
