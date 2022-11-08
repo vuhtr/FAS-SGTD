@@ -18,7 +18,7 @@ flags.path.train_file=['./data/train_images',
 flags.path.dev_file=['./data/dev_images',
                     './data/dev_depth']
 flags.path.test_file=['./data/test_images',
-                     './data/test_images']
+                     './data/test_depth']
 
 flags.path.model= path_gen_save #v10.1.1 for normal conv3d; v10.1.2 for 1.4 conv3d
 

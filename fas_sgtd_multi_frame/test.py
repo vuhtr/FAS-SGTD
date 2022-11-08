@@ -1,6 +1,8 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+import argparse
+
 import numpy as np
 import tensorflow as tf
 import FLAGS
@@ -25,7 +27,8 @@ else:
     start_iteration = 15001
     interval_iteration = 500
 
-path_txt = './scores/norm_fusion_att_%.2f_%.2f/Protocol_1'%(flags.paras.single_ratio, flags.paras.cla_ratio)
+# path_txt = './scores/norm_fusion_att_%.2f_%.2f/Protocol_1'%(flags.paras.single_ratio, flags.paras.cla_ratio)
+path_txt = './scores/'
 if not os.path.exists(path_txt):
     os.makedirs(path_txt)
 
@@ -113,22 +116,11 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
     def realProb(logits):
         #return np.exp(logits[1])/(np.exp(logits[0])+np.exp(logits[1]))
         x = np.array(logits)
-        y = np.exp(x[0])/np.sum(np.exp(x))
+        y = np.exp(x[1])/np.sum(np.exp(x))      # x[1] ~ real prob
         #y = x[0]
         return y
     def name_encode(name_):
-        return name_.split('_')[0] + '.mp4'
-        # if mode == 'dev':
-        #     return name_
-        # elif mode == 'test':
-        #     name_split = name_.split('_')
-        #     name_10 = name_split[0] + name_split[3] + name_split[1] + name_split[2]
-        #     name_16 = hex(int(name_10))
-        #     name_16 = name_16[0] + name_16[2:]
-        #     return name_16
-        # else:
-        #     print('Error mode: requires dev or test')
-        #     exit(1)        
+        return name_.split('_')[0] + '.mp4'     
 
     eval_input_fn = input_fn_maker(data_list, shuffle=False, 
                                 batch_size = 1,
@@ -142,71 +134,129 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
     video_name = None
     video_score = 0.0
     video_frame_count = 0.0
-    
-    print('[DEBUG] Value of features')
-    for feature in features:
-        logits=feature['logits']
-        '''
-        logits_tmp = logits[1]
-        logits[1] = logits[0]
-        logits[0] = logits_tmp
-        '''
-        labels=feature['labels']
-        names=feature['names']
-        print('labels:', labels)
-        print('names:', names)
-        depth_map=feature['depth_map']   
-        masks=feature['masks']  
-        depth_map = depth_map[..., 0]*masks[..., 0]   
-        #depth_map = (depth_map - np.min(depth_map)) / (np.max(depth_map) - np.min(depth_map) + 1e-6)
-        depth_mean = np.sum(depth_map) / np.sum(masks[..., 0])
 
-        cla_ratio = flags.paras.cla_ratio
-        depth_ratio = 1 - cla_ratio
-        logits[0] = depth_ratio * depth_mean + cla_ratio * logits[0]
-        logits[1] = 1.0 - depth_mean
+    if mode == 'dev':    
+        print('Index, Logits, Output, Label, Name, Acc')
+        for feature in features:
+            logits=feature['logits']
+            '''
+            logits_tmp = logits[1]
+            logits[1] = logits[0]
+            logits[0] = logits_tmp
+            '''
+            labels=feature['labels']
+            names=feature['names']
+            depth_map=feature['depth_map']   
+            masks=feature['masks']  
+            depth_map = depth_map[..., 0]*masks[..., 0]   
+            #depth_map = (depth_map - np.min(depth_map)) / (np.max(depth_map) - np.min(depth_map) + 1e-6)
+            depth_mean = np.sum(depth_map) / np.sum(masks[..., 0])
 
-        out = np.argmax(np.array(logits))
-        #out = 1 if out == 0 else 0
-        acc = int(out == labels[0])
-        acc_mean += float(acc)
-        print(fea_ind, logits, out, labels, [name.decode() for name in names], acc )
+            cla_ratio = flags.paras.cla_ratio
+            depth_ratio = 1 - cla_ratio
+            logits[0] = depth_ratio * depth_mean + cla_ratio * logits[0]
+            logits[1] = 1.0 - depth_mean
 
-        if (video_name == None):
-            video_name = names[0].decode()
-            video_score += realProb(logits)
-            video_frame_count += 1.0
-        elif (not names[0].decode() == video_name):
-            video_score_mean = video_score/video_frame_count
-            video_name_encode = name_encode(video_name)
-            fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
+            out = np.argmax(np.array(logits))
+            #out = 1 if out == 0 else 0
+            acc = int(out == labels[0])
+            acc_mean += float(acc)
+            print(fea_ind, logits, out, labels, [name.decode() for name in names], acc )
 
-            video_name = names[0].decode()
-            video_score = 0.0
-            video_frame_count = 0.0
-            video_score += realProb(logits)
-            video_frame_count += 1.0
+            if (video_name == None):
+                video_name = names[0].decode()
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            elif (not names[0].decode() == video_name):
+                video_score_mean = video_score/video_frame_count
+                video_name_encode = name_encode(video_name)
+                fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
+
+                video_name = names[0].decode()
+                video_score = 0.0
+                video_frame_count = 0.0
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            else:
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            #save_contents(fea_ind, logits, labels, [name.decode() for name in names])
+            fea_ind+=1
+        if video_frame_count == 0:
+            video_score_mean = 0.0
         else:
-            video_score += realProb(logits)
-            video_frame_count += 1.0
-        #save_contents(fea_ind, logits, labels, [name.decode() for name in names])
-        fea_ind+=1
-    if video_frame_count == 0:
-        video_score_mean = 0.0
-    else:
-        video_score_mean = video_score/video_frame_count
-    video_name_encode = name_encode(video_name)
-    fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
+            video_score_mean = video_score/video_frame_count
+        video_name_encode = name_encode(video_name)
+        fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
 
-    print('acc_mean:', acc_mean/float(fea_ind))
-    fid.close()
+        print('acc_mean:', acc_mean/float(fea_ind))
+        fid.close()
+
+    else:
+        print('Index, Logits, Output, Name')
+        for feature in features:
+            logits=feature['logits']
+            '''
+            logits_tmp = logits[1]
+            logits[1] = logits[0]
+            logits[0] = logits_tmp
+            '''
+            names=feature['names']
+            depth_map=feature['depth_map']   
+            masks=feature['masks']  
+            depth_map = depth_map[..., 0]*masks[..., 0]   
+            #depth_map = (depth_map - np.min(depth_map)) / (np.max(depth_map) - np.min(depth_map) + 1e-6)
+            depth_mean = np.sum(depth_map) / np.sum(masks[..., 0])
+
+            cla_ratio = flags.paras.cla_ratio
+            depth_ratio = 1 - cla_ratio
+            logits[0] = depth_ratio * depth_mean + cla_ratio * logits[0]
+            logits[1] = 1.0 - depth_mean
+
+            out = np.argmax(np.array(logits))
+            #out = 1 if out == 0 else 0
+            print(fea_ind, logits, out, [name.decode() for name in names])
+
+            if (video_name == None):
+                video_name = names[0].decode()
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            elif (not names[0].decode() == video_name):
+                video_score_mean = video_score/video_frame_count
+                video_name_encode = name_encode(video_name)
+                fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
+
+                video_name = names[0].decode()
+                video_score = 0.0
+                video_frame_count = 0.0
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            else:
+                video_score += realProb(logits)
+                video_frame_count += 1.0
+            #save_contents(fea_ind, logits, labels, [name.decode() for name in names])
+            fea_ind+=1
+        if video_frame_count == 0:
+            video_score_mean = 0.0
+        else:
+            video_score_mean = video_score/video_frame_count
+        video_name_encode = name_encode(video_name)
+        fid.write(video_name_encode + ',' + str(video_score_mean) + '\n')
+        fid.close()
 
 def officialEval(path_model_now):
-    path_txt_dev = os.path.join(path_txt, 'Dev_scores.txt')
-    path_txt_test = os.path.join(path_txt, 'Test_scores.txt')
+    mode = flags.mode
+    if mode == 'dev':
+        path_txt_file = os.path.join(path_txt, 'dev.txt')
+    else:
+        path_txt_file = os.path.join(path_txt, 'test.txt')
+
+    officialEvalSub(path_txt_file, flags.path.data, path_model_now)
+    # path_txt_dev = os.path.join(path_txt, 'Dev_scores.txt')
+    # path_txt_test = os.path.join(path_txt, 'Test_scores.txt')
     
-    officialEvalSub(path_txt_dev, [flags.path.dev_file], 'dev', path_model_now)
-    officialEvalSub(path_txt_test, [flags.path.test_file], 'test', path_model_now)   
+    # officialEvalSub(path_txt_dev, [flags.path.dev_file], 'dev', path_model_now)
+    # officialEvalSub(path_txt_test, [flags.path.test_file], 'test', path_model_now)   
 
 def getExel(path_scores, iter_now):
     Performances_this = util_OULU.get_scores_Protocol_1(os.path.split(path_scores)[0])
@@ -276,10 +326,30 @@ def offline_eval():
             getExel(path_txt, iter_now)
             iter_before = iter_now
 
+
 if __name__ == '__main__':
-    if isOnline:
-        online_eval()
-    else:
-        offline_eval()
+    # if isOnline:
+    #     online_eval()
+    # else:
+    #     offline_eval()
     
+
+    # argument parser
+    parser = argparse.ArgumentParser()
+    # parser.add_argument('--path', type=str, required=True, help='path of dataset')
+    parser.add_argument('--mode', type=str, required=True, help='mode of running', choices=['dev', 'test'])
+    parser.add_argument('--model', type=str, default='./model_save/', help='path of model')
+    parser.add_argument('--depth-path', type=str, required=True, help='path of depth image folder')
+    parser.add_argument('--image-path', type=str, required=True, help='path of rgb image folder')
+
+    # parse arguments
+    args = parser.parse_args()
+    
+    flags.path.model = args.model
+    flags.mode = args.mode
+    flags.path.data = [args.depth_path, args.image_path]
+
+    offline_eval()
+
+
 
