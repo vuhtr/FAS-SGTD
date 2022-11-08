@@ -1,13 +1,13 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 import numpy as np
 import tensorflow as tf
 import FLAGS
-import os
 import pickle
 import time
 import sys
 sys.path.append('./util/')
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import util.util_test_OULU_Protocol_1 as util_OULU
 from generate_data_test import input_fn_maker
