@@ -1,0 +1,4 @@
+*.pyc
+*__pycache__*
+PRNet-Depth-Generation/
+fas_sgtd_multi_frame/model_save/*
