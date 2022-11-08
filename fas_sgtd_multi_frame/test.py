@@ -116,17 +116,18 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
         #y = x[0]
         return y
     def name_encode(name_):
-        if mode == 'dev':
-            return name_
-        elif mode == 'test':
-            name_split = name_.split('_')
-            name_10 = name_split[0] + name_split[3] + name_split[1] + name_split[2]
-            name_16 = hex(int(name_10))
-            name_16 = name_16[0] + name_16[2:]
-            return name_16
-        else:
-            print('Error mode: requires dev or test')
-            exit(1)        
+        return name_
+        # if mode == 'dev':
+        #     return name_
+        # elif mode == 'test':
+        #     name_split = name_.split('_')
+        #     name_10 = name_split[0] + name_split[3] + name_split[1] + name_split[2]
+        #     name_16 = hex(int(name_10))
+        #     name_16 = name_16[0] + name_16[2:]
+        #     return name_16
+        # else:
+        #     print('Error mode: requires dev or test')
+        #     exit(1)        
 
     eval_input_fn = input_fn_maker(data_list, shuffle=False, 
                                 batch_size = 1,

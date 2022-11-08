@@ -70,51 +70,84 @@ def generate_existFaceLists_perfile(name_pure,IMAGES):
     name_pure: pure name of each video
     IMAGES: image(frame) list of each video
     return: lists of [path_image, start_ind, end_ind, label, face_name_full]
+    Ex:
+        dev
+            dev_depth			---> path_image
+                1_1	(video name_label)			---> name_pure
+                    1_0_depth1D.jpg
+                    1_8_depth1D.jpg
+                    1_16_depth1D.jpg	(0, 8, 16 are frame ids)
+
+                2_0	(video name_label)
+                    2_0_depth1D.jpg
+                    ...
+            dev_images			---> path_scene
+                3_1
+                    3_0_scene.jpg
+                    3_8_scene.jpg
+                    ...
+                4_1
+                    4_0_scene.jpg
+                    ...
     '''
     res_list=[]
 
-    len_seq=flags.paras.len_seq
-    stride_seq=1#flags.paras.stride_seq * 16
-    num_image= len(IMAGES) + 100
-    path_image=IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]
+    video_label = int(name_pure.split('_')[-1])
+    path_image = IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]     # image folder
+    files = os.listdir(path_image)
 
-    label_name=name_pure.split('_')[-2]
-    if(label_name=='hack'): # casia and replayAttack
-        label=2
-        if (name_pure.split('_')[0]=='CASIA'):
-            stride_seq*=5 # down sampling for negative samples 
-    elif(label_name=='real'):
-        label=1
-    else: # ijcb train and dev
-        label=int(name_pure.split('_')[-1])
+    for file in files:
+        name = file.split('.')[0]
+        frame_id = int(name.split('_')[-2])
+        start_ind = frame_id
+        end_ind = frame_id + 7
+        face_name_full = os.path.join(path_image, file)
+        res_list.append([path_image, start_ind, end_ind, video_label, face_name_full])
 
-        if(label>=2 and label<=3): # down sampling for negative samples 
-            stride_seq *= 1
-        if(label>=4 and label<=5): # down sampling for negative samples 
-            stride_seq *= 1
-    if num_classes == 2:
-        label=1 if label==1 else 2
-    #label=1 if label==1 else 0
-    label = label - 1
-    # down sampling for negative samples  
-    start_ind=1
-    end_ind=start_ind+ (len_seq-1)*interval_seq
-    while (end_ind<num_image):
-        #print('%d-%d'%(start_ind,end_ind))
-        feature_dict={}
-        if(not exists_face_image(path_image,name_pure,suffix2, range(start_ind, end_ind+1, interval_seq))):
-            start_ind+=stride_seq
-            end_ind+=stride_seq
-            #print('Lack of face image(s)')
-            continue
-        #feature_dict['label']=tf.train.Feature(int64_list=tf.train.Int64List(value=[label]))
-        face_name_full=os.path.join(path_image,name_pure+'_%03d'%start_ind +'_'+suffix2)
-        res_list.append([path_image, start_ind, end_ind, label, face_name_full])
+    return res_list
 
-        start_ind+=stride_seq
-        end_ind+=stride_seq
-    #return res_list
-    return get_res_list(res_list)
+    # len_seq=flags.paras.len_seq
+    # stride_seq=1#flags.paras.stride_seq * 16
+    # num_image= len(IMAGES) + 100
+    # path_image=IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]
+
+    # label_name=name_pure.split('_')[-2]
+    # if(label_name=='hack'): # casia and replayAttack
+    #     label=2
+    #     if (name_pure.split('_')[0]=='CASIA'):
+    #         stride_seq*=5 # down sampling for negative samples 
+    # elif(label_name=='real'):
+    #     label=1
+    # else: # ijcb train and dev
+    #     label=int(name_pure.split('_')[-1])
+
+    #     if(label>=2 and label<=3): # down sampling for negative samples 
+    #         stride_seq *= 1
+    #     if(label>=4 and label<=5): # down sampling for negative samples 
+    #         stride_seq *= 1
+    # if num_classes == 2:
+    #     label=1 if label==1 else 2
+    # #label=1 if label==1 else 0
+    # label = label - 1
+    # # down sampling for negative samples  
+    # start_ind=1
+    # end_ind=start_ind+ (len_seq-1)*interval_seq
+    # while (end_ind<num_image):
+    #     #print('%d-%d'%(start_ind,end_ind))
+    #     feature_dict={}
+    #     if(not exists_face_image(path_image,name_pure,suffix2, range(start_ind, end_ind+1, interval_seq))):
+    #         start_ind+=stride_seq
+    #         end_ind+=stride_seq
+    #         #print('Lack of face image(s)')
+    #         continue
+    #     #feature_dict['label']=tf.train.Feature(int64_list=tf.train.Int64List(value=[label]))
+    #     face_name_full=os.path.join(path_image,name_pure+'_%03d'%start_ind +'_'+suffix2)
+    #     res_list.append([path_image, start_ind, end_ind, label, face_name_full])
+
+    #     start_ind+=stride_seq
+    #     end_ind+=stride_seq
+    # #return res_list
+    # return get_res_list(res_list)
     '''
     if len(res_list) > 0:
         return [ res_list[0] ]
