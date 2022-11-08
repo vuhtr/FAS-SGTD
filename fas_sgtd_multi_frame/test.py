@@ -104,6 +104,7 @@ def ourEval():
         save_contents(fea_ind, logits, labels, [name.decode() for name in names])
 
         fea_ind+=1
+
     print('acc_mean:', acc_mean/float(fea_ind))
 
     save_pickles()
@@ -116,7 +117,7 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
         #y = x[0]
         return y
     def name_encode(name_):
-        return name_
+        return name_.split('_')[0] + '.mp4'
         # if mode == 'dev':
         #     return name_
         # elif mode == 'test':
@@ -141,7 +142,8 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
     video_name = None
     video_score = 0.0
     video_frame_count = 0.0
-    print('[DEBUG] features:', features)
+    
+    print('[DEBUG] Value of features')
     for feature in features:
         logits=feature['logits']
         '''
@@ -151,6 +153,8 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
         '''
         labels=feature['labels']
         names=feature['names']
+        print('labels:', labels)
+        print('names:', names)
         depth_map=feature['depth_map']   
         masks=feature['masks']  
         depth_map = depth_map[..., 0]*masks[..., 0]   
