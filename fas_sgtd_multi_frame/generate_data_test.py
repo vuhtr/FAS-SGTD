@@ -142,6 +142,7 @@ def read_data_decode(name_pure, path_image, path_scene, start_ind, end_ind, labe
         # image_face = crop_face_from_scene(image, face_dat_name, face_scale)
         image_face = image_face.resize([padding_info['images'][0], padding_info['images'][1]])
         image_face = np.array(image_face, np.float32) - 127.5
+        print('[DEBUG] image_face: ', image_face.shape)
 
         # depth1d = Image.open(mesh_name_full)
         depth1d_face = Image.open(mesh_name_full)
@@ -150,6 +151,8 @@ def read_data_decode(name_pure, path_image, path_scene, start_ind, end_ind, labe
         vertices_map = np.array(depth1d_face, np.float32)
         vertices_map = np.expand_dims(vertices_map, axis = 0)
         vertices_map = np.expand_dims(vertices_map, axis = -1)
+        print('[DEBUG] vertices_map: ', vertices_map.shape)
+
         image_face_list.append(image_face)
         vertices_map_list.append(vertices_map)
 

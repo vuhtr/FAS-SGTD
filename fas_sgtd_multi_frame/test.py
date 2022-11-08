@@ -141,6 +141,7 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
     video_name = None
     video_score = 0.0
     video_frame_count = 0.0
+    print('[DEBUG] features:', features)
     for feature in features:
         logits=feature['logits']
         '''
