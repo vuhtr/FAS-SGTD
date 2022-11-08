@@ -113,6 +113,8 @@ def ourEval():
     save_pickles()
 
 def officialEvalSub(txt_name, data_list, mode, path_model_now):
+    print('[DEBUG] officialEvalSub data_list:', data_list)
+    
     def realProb(logits):
         #return np.exp(logits[1])/(np.exp(logits[0])+np.exp(logits[1]))
         x = np.array(logits)
