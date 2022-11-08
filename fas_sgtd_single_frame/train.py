@@ -3,6 +3,9 @@ import tensorflow as tf
 import FLAGS
 from generate_data_train import input_fn_maker
 from generate_network import generate_network as model_fn
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 flags=FLAGS.flags # setting paras
 # log info setting

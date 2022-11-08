@@ -155,6 +155,7 @@ def get_res_list(res_list, label):
     for i in range(0, len_list, each_len):
         res_list_new.append(res_list[i])
     return res_list_new
+
 def generate_existFaceLists_perfile(name_pure, path_scene, IMAGES):
     '''
     name_pure: pure name of each video
@@ -182,10 +183,12 @@ def generate_existFaceLists_perfile(name_pure, path_scene, IMAGES):
             stride_seq *= 8
         if(label>=4 and label<=5): # down sampling for negative samples 
             stride_seq *= 8
+
     if num_classes == 2:
         label=1 if label==1 else 2
     #label=1 if label==1 else 0
-    label = label - 1
+    label = label - 1       # label = 0 --> real, label = 1 --> fake
+    
     # down sampling for negative samples  
     start_ind=1
     end_ind=start_ind+ (len_seq-1)*interval_seq

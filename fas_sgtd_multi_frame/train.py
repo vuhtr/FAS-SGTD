@@ -3,6 +3,9 @@ import tensorflow as tf
 import FLAGS
 from generate_data_train import input_fn_maker
 from generate_network import generate_network as model_fn
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 flags=FLAGS.flags # setting paras
 # log info setting
@@ -13,10 +16,10 @@ train_data_list=[flags.path.train_file]
 train_input_fn = input_fn_maker(train_data_list, shuffle=True, 
                                 batch_size = flags.paras.batch_size_train,
                                 epoch=flags.paras.epoch)
-test_data_list=[flags.path.test_file, flags.path.dev_file]
-test_input_fn = input_fn_maker_test(test_data_list, shuffle=False, 
-                                batch_size = flags.paras.batch_size_test,
-                                epoch=1)
+# test_data_list=[flags.path.test_file, flags.path.dev_file]
+# test_input_fn = input_fn_maker_test(test_data_list, shuffle=False, 
+#                                 batch_size = flags.paras.batch_size_test,
+#                                 epoch=1)
 
 # model fn
 model_fn_this=model_fn

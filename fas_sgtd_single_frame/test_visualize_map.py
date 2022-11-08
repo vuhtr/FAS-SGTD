@@ -8,6 +8,8 @@ import sys
 sys.path.append('./util/')
 from PIL import Image
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 import util.util_test_OULU_Protocol_1 as util_OULU
 from generate_data_test import input_fn_maker
 from generate_network import generate_network as model_fn
