@@ -53,7 +53,7 @@ this_config=tf.estimator.RunConfig(
     save_checkpoints_steps=flags.display.display_iter,
     keep_checkpoint_max=102400,
     log_step_count_steps=flags.display.log_iter,
-    session_config=tf.ConfigProto(allow_soft_placement=True,
+    session_config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True,
                                 gpu_options=tf.GPUOptions(allow_growth=True))
 )
 mnist_classifier = tf.estimator.Estimator(
