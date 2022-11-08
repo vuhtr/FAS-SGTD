@@ -114,7 +114,7 @@ def ourEval():
 
 def officialEvalSub(txt_name, data_list, mode, path_model_now):
     print('[DEBUG] officialEvalSub data_list:', data_list)
-    
+
     def realProb(logits):
         #return np.exp(logits[1])/(np.exp(logits[0])+np.exp(logits[1]))
         x = np.array(logits)
@@ -152,7 +152,7 @@ def officialEvalSub(txt_name, data_list, mode, path_model_now):
             masks=feature['masks']  
             depth_map = depth_map[..., 0]*masks[..., 0]   
             #depth_map = (depth_map - np.min(depth_map)) / (np.max(depth_map) - np.min(depth_map) + 1e-6)
-            depth_mean = np.sum(depth_map) / np.sum(masks[..., 0])
+            depth_mean = np.sum(depth_map) / (np.sum(masks[..., 0] + 1e-6))
 
             cla_ratio = flags.paras.cla_ratio
             depth_ratio = 1 - cla_ratio
