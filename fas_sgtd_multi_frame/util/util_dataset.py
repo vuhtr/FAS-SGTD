@@ -83,7 +83,6 @@ class IJCB:
         if not len(name_split)==4:
             return False
         
-        print('[DEBUG] name split:', name_split)
         [phones_, session_, users_, PAI_] = [int(x) for x in name_split]
 
         if (phones_ in self.protocol_info['phones']) and (session_ in self.protocol_info['session']) \
