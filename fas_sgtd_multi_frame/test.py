@@ -251,7 +251,7 @@ def officialEval(path_model_now):
     else:
         path_txt_file = os.path.join(path_txt, 'test.txt')
 
-    officialEvalSub(path_txt_file, flags.path.data, mode, path_model_now)
+    officialEvalSub(path_txt_file, [flags.path.data], mode, path_model_now)
     # path_txt_dev = os.path.join(path_txt, 'Dev_scores.txt')
     # path_txt_test = os.path.join(path_txt, 'Test_scores.txt')
     
@@ -347,7 +347,7 @@ if __name__ == '__main__':
     
     flags.path.model = args.model
     flags.mode = args.mode
-    flags.path.data = [args.depth_path, args.image_path]
+    flags.path.data = [args.image_path, args.depth_path]
 
     offline_eval()
 
