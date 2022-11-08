@@ -180,22 +180,21 @@ def input_fn_generator(train_list, shuffle):
 
     if(not type(train_list)==list):
         raise NameError
-    print('[DEBUG]', train_list)
+    print('[DEBUG] train_list:', train_list)
 
     FILES_LIST=[]
     for fInd in range(len(train_list)):
         path_train_file=train_list[fInd]
-        print('[DEBUG] Reading %s'%path_train_file)
         FILES=glob.glob(os.path.join(path_train_file[1],'*'))
         FILES_LIST=FILES_LIST+FILES
 
-    print('[DEBUG]', FILES_LIST)
+    print('[DEBUG] FILES_LIST:', FILES_LIST)
     
     ## select protocol of IJCB
-    FILES_LIST = IJCB(flags.dataset.protocal, 'test').dataset_process(FILES_LIST)\
-                + IJCB(flags.dataset.protocal, 'dev').dataset_process(FILES_LIST)
+    # FILES_LIST = IJCB(flags.dataset.protocal, 'test').dataset_process(FILES_LIST)\
+                # + IJCB(flags.dataset.protocal, 'dev').dataset_process(FILES_LIST)
 
-    print('[DEBUG]', FILES_LIST)
+    # print('[DEBUG]', FILES_LIST)
 
     if shuffle:
         random.shuffle(FILES_LIST) # random shuffle
@@ -203,6 +202,7 @@ def input_fn_generator(train_list, shuffle):
     for i in range(len(FILES_LIST)):
         path_image=FILES_LIST[i]
         path_scene = find_path_scene(path_image)
+        print('[DEBUG] path_scene:', path_scene)
         name_pure=os.path.split(path_image)[-1]
         #print(i,name_pure)
         IMAGES=glob.glob(os.path.join(path_image,'*'+suffix2))
@@ -212,6 +212,7 @@ def input_fn_generator(train_list, shuffle):
             random.shuffle(IMAGES) # random shuffle
 
         existFaceLists=generate_existFaceLists_perfile(name_pure,IMAGES)
+        print('[DEBUG] existFaceLists:', existFaceLists)
         for existList in existFaceLists:
             [path_image, start_ind, end_ind, label, face_name_full]=existList
             ALLDATA=[name_pure.encode(), path_image.encode(), path_scene.encode(), \
