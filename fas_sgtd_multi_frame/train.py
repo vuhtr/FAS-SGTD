@@ -7,13 +7,32 @@ import FLAGS
 from generate_data_train import input_fn_maker
 from generate_network import generate_network as model_fn
 
+flags = FLAGS.flags
 
-flags=FLAGS.flags # setting paras
+import argparse
+
+parser = argparse.ArgumentParser()
+
+# parser.add_argument('--model', type=str, default='./model_save/', help='path of model')
+parser.add_argument('--epoch', type=int, default=1000, help='epoch of training')
+parser.add_argument('--batch', type=int, default=2, help='batch size of training')
+parser.add_argument('--depth-path', type=str, required=True, help='path of depth image folder')
+parser.add_argument('--image-path', type=str, required=True, help='path of rgb image folder')
+
+# parse arguments
+args = parser.parse_args()
+
+# flags.path.model = args.model
+flags.path.data = [args.image_path, args.depth_path]
+flags.paras.epoch = args.epoch
+flags.paras.batch_size_train = args.batch
+
 # log info setting
 tf.logging.set_verbosity(tf.logging.INFO)
 # data fn
 
-train_data_list=[flags.path.train_file]
+# train_data_list=[flags.path.train_file]
+train_data_list=[flags.path.data]
 train_input_fn = input_fn_maker(train_data_list, shuffle=True, 
                                 batch_size = flags.paras.batch_size_train,
                                 epoch=flags.paras.epoch)
@@ -42,4 +61,5 @@ mnist_classifier = tf.estimator.Estimator(
 
 ''' only run train set '''
 mnist_classifier.train(input_fn=train_input_fn)
+
 
