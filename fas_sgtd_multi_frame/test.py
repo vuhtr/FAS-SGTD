@@ -347,7 +347,7 @@ if __name__ == '__main__':
     
     flags.path.model = args.model
     flags.mode = args.mode
-    flags.path.data = [args.depth_path, args.image_path]
+    flags.path.data = [args.image_path, args.depth_path]
 
     offline_eval()
 
