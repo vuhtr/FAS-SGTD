@@ -156,7 +156,7 @@ def get_res_list(res_list, label):
         res_list_new.append(res_list[i])
     return res_list_new
 
-def generate_existFaceLists_perfile(name_pure,IMAGES):
+def generate_existFaceLists_perfile(name_pure, path_scene, IMAGES):
     '''
     name_pure: pure name of each video
     IMAGES: image(frame) list of each video
@@ -203,7 +203,7 @@ def generate_existFaceLists_perfile(name_pure,IMAGES):
             end_ind += stride_seq
             continue
         face_name_full=os.path.join(path_image,name_pure+'_%d'%start_ind +'_'+suffix2)
-        res_list.append([path_image, start_ind, end_ind, video_label, face_name_full])
+        res_list.append([name_pure, path_image, path_scene, start_ind, end_ind, video_label, face_name_full])
 
         start_ind+=stride_seq
         end_ind+=stride_seq
