@@ -78,7 +78,7 @@ class IJCB:
         self.protocol_info = protocol_dict[protocol][mode]
 
     def isInPotocol(self, file_name_full):
-        file_name = os.path.split(file_name_full)[-1]
+        file_name = os.path.split(file_name_full)[-1][:-4]
         name_split = file_name.split('_')
         if not len(name_split)==4:
             return False
