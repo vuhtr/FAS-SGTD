@@ -95,7 +95,7 @@ def generate_existFaceLists_perfile(name_pure,IMAGES):
 
     video_label = int(name_pure.split('_')[-1])
     path_image = IMAGES[0][:-len(os.path.split(IMAGES[0])[-1])]     # image folder
-    files = os.listdir(path_image)
+    # files = os.listdir(path_image)
 
     len_seq=flags.paras.len_seq
     stride_seq=1#flags.paras.stride_seq * 16
