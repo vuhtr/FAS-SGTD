@@ -180,9 +180,12 @@ def input_fn_generator(train_list, shuffle):
 
     if(not type(train_list)==list):
         raise NameError
+    print('[DEBUG]', train_list)
+
     FILES_LIST=[]
     for fInd in range(len(train_list)):
         path_train_file=train_list[fInd]
+        print('[DEBUG] Reading %s'%path_train_file)
         FILES=glob.glob(os.path.join(path_train_file[1],'*'))
         FILES_LIST=FILES_LIST+FILES
 
